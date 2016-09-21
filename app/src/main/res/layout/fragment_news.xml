@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+             xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:orientation="vertical">
+
+    <TextView
+        android:id="@id/loadingView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:background="#44ff0000"
+        android:text="loading"/>
+
+    <TextView
+        android:id="@id/errorView"
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:background="#ff0000"
+        android:layout_height="match_parent"
+        android:text="error"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@id/contentView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
+</FrameLayout>
