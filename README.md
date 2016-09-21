@@ -116,11 +116,15 @@ public class NewsListPersenter extends MvpBasePresenter<NewsListView> {
 首先页面后显示loading状态，然后显示新闻数据，如果错误可以在presenter中调用`getView().showError();`，这是mosby实现的LCE效果。
 然后旋转屏幕，看看会发送什么，效果图：
 
+![viewstate_gif](https://raw.githubusercontent.com/Blankeer/MVPMosbyDemo/master/image/viewstate.gif)
+
 可以看到旋转之后数据直接显示了，是没有再去获取数据的，可能不太好看，通过log看更直观。
 
 
 #分析
 先上uml
+
+![viewstate_class](https://raw.githubusercontent.com/Blankeer/MVPMosbyDemo/master/image/viewstate_class.jpg)
 
 MvpFragment是所有mvp*Fragment的父类，它实现了BaseMvpDelegateCallback接口，从名字可以看出，它是一个代理类的回调，后面可以看到这个代理类就是FragmentMvpDelegate，可以看到FragmentMvpDelegate里面都是Fragment生命周期的声明，在MvpFragment中每个生命周期都是交给这个代理类处理。再说BaseMvpDelegateCallback，它是供FragmentMvpDelegate使用的，它实际上是view层必须实现的接口，官方对它的说明是`This interface must be implemented by all
  Fragment or android.view.View that you want to support mosbys mvp`,使用mosby必须在Fragment或View实现它，它里面的方法都是view层基本的方法，比如`createPresenter`，`getMvpView`等。到这里可以知道，当Fragment生命周期发生变化时，是交给FragmentMvpDelegate处理的，再看它的内部，它的构造方法需要传递delegateCallback对象也就是Fragment，内部又多了一个MvpInternalDelegate类，从名字可以看出它是内部处理的重要类，在Fragment回调onViewCreated生命周期时，有如下代码`getInternalDelegate().createPresenter(); getInternalDelegate().attachView();`MvpInternalDelegate会先创建Presenter，然后调用它的attachView()，MvpInternalDelegate的createPresenter方法:
