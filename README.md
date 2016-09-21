@@ -2,8 +2,8 @@
 Mosby官方地址:[Mosby](https://github.com/sockeqwe/mosby)
 ##使用
 以MvpLceViewStateFragment为例，具有LCE和ViewState两种功能，简单的使用见[NewsListFragment.java](https://github.com/Blankeer/MVPMosbyDemo/blob/master/app/src/main/java/com/blanke/testmosby/lceviewstate/NewsListFragment.java)和[NewsListPersenter.java](https://github.com/Blankeer/MVPMosbyDemo/blob/master/app/src/main/java/com/blanke/testmosby/lceviewstate/persenter/NewsListPersenter.java);
-简单的新闻列表，模拟耗时网络请求，首先页面后显示loading状态，然后显示新闻数据，如果错误可以在presenter中调用`getView().showError();`，这是mosby实现的LCE效果。
-然后旋转屏幕，看看会发送什么，效果图：
+简单的新闻列表，模拟耗时网络请求，首先页面后显示loading状态，然后显示新闻数据，如果错误可以在presenter中调用`getView().showError();`这是mosby实现的LCE效果。
+然后旋转屏幕，看看会发生什么，效果图：
 ![viewstate_gif](https://raw.githubusercontent.com/Blankeer/MVPMosbyDemo/master/image/viewstate.gif)
 
 可以看到旋转之后数据直接显示了，是没有再去获取数据的，说明viewstate是恢复了的，看log也能看出来。
