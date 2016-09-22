@@ -11,7 +11,7 @@ Mosby官方地址:[Mosby](https://github.com/sockeqwe/mosby)
 先上uml，这是viewstate的类图：
 ![viewstate_class](https://raw.githubusercontent.com/Blankeer/MVPMosbyDemo/master/image/viewstate_class.jpg)
 
-MvpFragment是所有mvp*Fragment的父类，它实现了BaseMvpDelegateCallback接口，从名字可以看出，它是一个代理类的回调，后面可以看到这个代理类就是FragmentMvpDelegate，可以看到FragmentMvpDelegate里面都是Fragment生命周期的声明，在MvpFragment中每个生命周期都是交给这个代理类处理。再说BaseMvpDelegateCallback，它是供FragmentMvpDelegate使用的，它实际上是view层必须实现的接口，官方对它的说明是`This interface must be implemented by all
+MvpFragment是所有mvp\*Fragment的父类，它实现了BaseMvpDelegateCallback接口，从名字可以看出，它是一个代理类的回调，后面可以看到这个代理类就是FragmentMvpDelegate，可以看到FragmentMvpDelegate里面都是Fragment生命周期的声明，在MvpFragment中每个生命周期都是交给这个代理类处理。再说BaseMvpDelegateCallback，它是供FragmentMvpDelegate使用的，它实际上是view层必须实现的接口，官方对它的说明是`This interface must be implemented by all
  Fragment or android.view.View that you want to support mosbys mvp`,使用mosby必须在Fragment或View实现它，它里面的方法都是view层基本的方法，比如`createPresenter`，`getMvpView`等。到这里可以知道，当Fragment生命周期发生变化时，是交给FragmentMvpDelegate处理的，再看它的内部，它的构造方法需要传递delegateCallback对象也就是Fragment，内部又多了一个MvpInternalDelegate类，从名字可以看出它是内部处理的重要类，在Fragment回调onViewCreated生命周期时，有如下代码`getInternalDelegate().createPresenter(); getInternalDelegate().attachView();`MvpInternalDelegate会先创建Presenter，然后调用它的attachView()，MvpInternalDelegate的createPresenter方法:
  ```
   void createPresenter() {
@@ -110,8 +110,11 @@ if (savedInstanceState != null
 它把LCE和ViewState合起来了，一般可以直接使用它。
 ###MvpFrameLayout/MvpLinearLayout/MvpRelativeLayout
 mosby后来的版本才加对Layout的支持，这样意味这可以把功能模块缩小至Layout，以前是fragment+presenter，如果使用layout+presenter，相比fragment更灵活。举个例子，知乎的回答详情页面，回答详情区域、点赞、收藏都是单独的功能逻辑，而且都具有LCE特点，采用mvplayout的话实现更为方便。
-Mvp*Layout和Mvp*Fragment原理类似，只不过view的生命周期和fragment不同。
-目前V2.0.1，官方提供了mvpLayout、MvpViewState*Layout的支持，未提供MvpLce*Layout的支持，可能正在更新吧，可以自己扩展下。
+Mvp\*Layout和Mvp\*Fragment原理类似，只不过view的生命周期和fragment不同。
+目前V2.0.1，官方提供了mvpLayout、MvpViewState\*Layout的支持，未提供MvpLce\*Layout的支持，可能正在更新吧，可以自己扩展下。
+update:自定义增加了[MvpLceViewStateFrameLayout.java](https://github.com/Blankeer/MVPMosbyDemo/blob/master/app/src/main/java/com/blanke/testmosby/MvpLceViewStateFrameLayout.java)
+效果图：
+![MvpLceViewStateFrameLayout_gif](https://raw.githubusercontent.com/Blankeer/MVPMosbyDemo/master/image/MvpLceViewStateFrameLayout.gif)
 
 
 
