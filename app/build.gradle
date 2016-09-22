@@ -22,11 +22,12 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.3.0'
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:design:23.4.0'
     compile 'com.hannesdorfmann.mosby:mvp:2.0.1'
     compile 'com.hannesdorfmann.mosby:viewstate:2.0.1'
     compile 'com.orhanobut:logger:1.15'
-    compile 'com.android.support:recyclerview-v7:23.3.0'
+    compile 'com.android.support:recyclerview-v7:23.4.0'
     compile 'org.byteam.superadapter:superadapter:3.+'
     compile 'io.reactivex:rxjava:1.2.0'
     compile 'io.reactivex:rxandroid:1.2.1'

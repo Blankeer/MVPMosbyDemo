@@ -7,6 +7,7 @@ import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
@@ -15,13 +16,14 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 
 /**
+ * Created by asus on 2016/9/20.
  */
 public class NewsListPersenter extends MvpBasePresenter<NewsListView> {
 
     public void getNews(int page, int pageSize, int type) {
         Logger.d("getnews");
 //        getView().showLoading(false);
-        Observable.timer(3000, TimeUnit.MILLISECONDS)
+        Observable.timer(2000, TimeUnit.MILLISECONDS)
                 .map(new Func1<Long, List<News>>() {
                     @Override
                     public List<News> call(Long aLong) {
@@ -37,6 +39,11 @@ public class NewsListPersenter extends MvpBasePresenter<NewsListView> {
                 .subscribe(new Action1<List<News>>() {
                     @Override
                     public void call(List<News> newses) {
+                        boolean error = new Random().nextInt(10) < 5;
+                        if (error) {
+                            getView().showError(new Exception("反正就是出错了.."), false);
+                            return;
+                        }
                         getView().setData(newses);
                         getView().showContent();
                     }
