@@ -8,8 +8,8 @@ Mosby官方地址:[Mosby](https://github.com/sockeqwe/mosby)
 
 可以看到旋转之后数据直接显示了，是没有再去获取数据的，说明viewstate是恢复了的，看log也能看出来。
 ##分析
-先上uml，这是viewstate的类图：
-![viewstate_class](https://raw.githubusercontent.com/Blankeer/MVPMosbyDemo/master/image/viewstate_class.jpg)
+先上uml，这是基础类的类图：
+![base_class](https://raw.githubusercontent.com/Blankeer/MVPMosbyDemo/master/image/base_class.jpg)
 
 MvpFragment是所有mvp\*Fragment的父类，它实现了BaseMvpDelegateCallback接口，从名字可以看出，它是一个代理类的回调，后面可以看到这个代理类就是FragmentMvpDelegate，可以看到FragmentMvpDelegate里面都是Fragment生命周期的声明，在MvpFragment中每个生命周期都是交给这个代理类处理。再说BaseMvpDelegateCallback，它是供FragmentMvpDelegate使用的，它实际上是view层必须实现的接口，官方对它的说明是`This interface must be implemented by all
  Fragment or android.view.View that you want to support mosbys mvp`,使用mosby必须在Fragment或View实现它，它里面的方法都是view层基本的方法，比如`createPresenter`，`getMvpView`等。到这里可以知道，当Fragment生命周期发生变化时，是交给FragmentMvpDelegate处理的，再看它的内部，它的构造方法需要传递delegateCallback对象也就是Fragment，内部又多了一个MvpInternalDelegate类，从名字可以看出它是内部处理的重要类，在Fragment回调onViewCreated生命周期时，有如下代码`getInternalDelegate().createPresenter(); getInternalDelegate().attachView();`MvpInternalDelegate会先创建Presenter，然后调用它的attachView()，MvpInternalDelegate的createPresenter方法:
@@ -59,8 +59,11 @@ public class MvpBasePresenter<V extends MvpView> implements MvpPresenter<V> {
 ###LCE
 MvpLceFragment内置了R.id.loadingView/contentView/errorView，xml里需要显示设置这些id，必须得有，否则会报错，在onViewCreated()中会判断，；相应的MvpLceView内置了showLoading/showContent/showError/setData等方法，其中showloading/showError等方法，在MvpLceFragment里实现了默认的处理，动画显示和隐藏对应的控件。在使用时，只需要实现相应的方法即可，注意在presenter中设置数据和设置loading使用`getView().showLoading(false);getView().setData(newses);getView().showContent();`等方法。
 ###ViewState
+这是viewstate的类图：
+![viewstate_class](https://raw.githubusercontent.com/Blankeer/MVPMosbyDemo/master/image/viewstate_class.jpg)
+
 继承自MvpViewStateFragment，需要设置setRetainInstance(true);
- 增加了ViewState类，用来保存和恢复view的状态数据。它只有一个方法`public void apply(V view, boolean retained);`用来恢复mvpview的状态，它的直接子类有LceViewState和RestorableViewState，前者是具有lce恢复功能，常用的是RetainingLceViewState，后者是具有parcelable保存恢复功能。他两的子类很多，其中AbsParcelableLceViewState实现了实现了这两个接口，一般常用的有：ArrayListLceViewState可以存放list，ParcelableDataLceViewState可以存放Parcelable对象，SerializeableLceViewState存放Serializable对象。
+增加了ViewState类，用来保存和恢复view的状态数据。它只有一个方法`public void apply(V view, boolean retained);`用来恢复mvpview的状态，它的直接子类有LceViewState和RestorableViewState，前者是具有lce恢复功能，常用的是RetainingLceViewState，后者是具有parcelable保存恢复功能。他两的子类很多，其中AbsParcelableLceViewState实现了实现了这两个接口，一般常用的有：ArrayListLceViewState可以存放list，ParcelableDataLceViewState可以存放Parcelable对象，SerializeableLceViewState存放Serializable对象。
 由于增加了ViewState，相应的BaseMvpDelegateCallback扩展成了BaseMvpViewStateDelegateCallback，增加了对ViewState的处理，FragmentMvpViewStateDelegateImpl扩展了FragmentMvpDelegateImpl，主要增加了对状态保存，fragment意外销毁的数据保存，比如旋转屏幕，对`onCreate\onActivityCreated\onSaveInstanceState`这3个方法进行处理：
 ```
 @Override public void onCreate(Bundle saved) {
@@ -112,8 +115,11 @@ if (savedInstanceState != null
 mosby后来的版本才加对Layout的支持，这样意味这可以把功能模块缩小至Layout，以前是fragment+presenter，如果使用layout+presenter，相比fragment更灵活。举个例子，知乎的回答详情页面，回答详情区域、点赞、收藏都是单独的功能逻辑，而且都具有LCE特点，采用mvplayout的话实现更为方便。
 Mvp\*Layout和Mvp\*Fragment原理类似，只不过view的生命周期和fragment不同。
 目前V2.0.1，官方提供了mvpLayout、MvpViewState\*Layout的支持，未提供MvpLce\*Layout的支持，可能正在更新吧，可以自己扩展下。
+
 update:自定义增加了[MvpLceViewStateFrameLayout.java](https://github.com/Blankeer/MVPMosbyDemo/blob/master/app/src/main/java/com/blanke/testmosby/MvpLceViewStateFrameLayout.java)
+
 效果图：
+
 ![MvpLceViewStateFrameLayout_gif](https://raw.githubusercontent.com/Blankeer/MVPMosbyDemo/master/image/MvpLceViewStateFrameLayout.gif)
 
 
