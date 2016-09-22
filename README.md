@@ -13,7 +13,7 @@ Mosby官方地址:[Mosby](https://github.com/sockeqwe/mosby)
 
 MvpFragment是所有mvp\*Fragment的父类，它实现了BaseMvpDelegateCallback接口，从名字可以看出，它是一个代理类的回调，后面可以看到这个代理类就是FragmentMvpDelegate，可以看到FragmentMvpDelegate里面都是Fragment生命周期的声明，在MvpFragment中每个生命周期都是交给这个代理类处理。再说BaseMvpDelegateCallback，它是供FragmentMvpDelegate使用的，它实际上是view层必须实现的接口，官方对它的说明是`This interface must be implemented by all
  Fragment or android.view.View that you want to support mosbys mvp`,使用mosby必须在Fragment或View实现它，它里面的方法都是view层基本的方法，比如`createPresenter`，`getMvpView`等。到这里可以知道，当Fragment生命周期发生变化时，是交给FragmentMvpDelegate处理的，再看它的内部，它的构造方法需要传递delegateCallback对象也就是Fragment，内部又多了一个MvpInternalDelegate类，从名字可以看出它是内部处理的重要类，在Fragment回调onViewCreated生命周期时，有如下代码`getInternalDelegate().createPresenter(); getInternalDelegate().attachView();`MvpInternalDelegate会先创建Presenter，然后调用它的attachView()，MvpInternalDelegate的createPresenter方法:
- ```
+ ```java
   void createPresenter() {
     P presenter = delegateCallback.getPresenter();
     if (presenter == null) {
@@ -27,7 +27,7 @@ MvpFragment是所有mvp\*Fragment的父类，它实现了BaseMvpDelegateCallback
  ```
 它就是判断然后创建Presenter,这里会调用我们在Fragment实现的createPresenter(),presenter由我们自定义；注意，这里会判断是否为null，也就是在Fragment的onViewCreated的时候会检查createPresenter()是否为空，很容易忘写了报这个错。
 attachView()方法:
-```
+```java
  void attachView() {
     getPresenter().attachView(delegateCallback.getMvpView());
   } 
@@ -65,7 +65,7 @@ MvpLceFragment内置了R.id.loadingView/contentView/errorView，xml里需要显�
 继承自MvpViewStateFragment，需要设置setRetainInstance(true);
 增加了ViewState类，用来保存和恢复view的状态数据。它只有一个方法`public void apply(V view, boolean retained);`用来恢复mvpview的状态，它的直接子类有LceViewState和RestorableViewState，前者是具有lce恢复功能，常用的是RetainingLceViewState，后者是具有parcelable保存恢复功能。他两的子类很多，其中AbsParcelableLceViewState实现了实现了这两个接口，一般常用的有：ArrayListLceViewState可以存放list，ParcelableDataLceViewState可以存放Parcelable对象，SerializeableLceViewState存放Serializable对象。
 由于增加了ViewState，相应的BaseMvpDelegateCallback扩展成了BaseMvpViewStateDelegateCallback，增加了对ViewState的处理，FragmentMvpViewStateDelegateImpl扩展了FragmentMvpDelegateImpl，主要增加了对状态保存，fragment意外销毁的数据保存，比如旋转屏幕，对`onCreate\onActivityCreated\onSaveInstanceState`这3个方法进行处理：
-```
+```java
 @Override public void onCreate(Bundle saved) {
     super.onCreate(saved);
     ((MvpViewStateInternalDelegate) getInternalDelegate()).createOrRestoreViewState(saved);
@@ -80,7 +80,7 @@ MvpLceFragment内置了R.id.loadingView/contentView/errorView，xml里需要显�
   }
 ```
 调用MvpViewStateInternalDelegate的相应方法，创建/恢复/保存ViewState，在`createOrRestoreViewState`中首先判断用户是否返回了ViewState，根据是否需要Parcelable意外保存做了判断
-```
+```java
 if (savedInstanceState != null
         && viewStateSupport.getViewState() instanceof RestorableViewState) {
       ViewState restoredViewState =
@@ -96,7 +96,7 @@ if (savedInstanceState != null
 ```
 接着在`onActivityCreated`中调用`applyViewState`恢复数据，`delegate.getViewState().apply(delegate.getMvpView(), retainingInstance);`交给相应的ViewState处理恢复。
 在意外销毁时，`onSaveInstanceState`回调`saveViewState`，判断isRetainInstance(),state等再去保存数据。
-```
+```java
 //省略为空判断
 	boolean retainingInstanceState = delegate.isRetainInstance();
     if (viewState != null && !retainingInstanceState
