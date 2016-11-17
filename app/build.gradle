@@ -28,7 +28,8 @@ dependencies {
     compile 'com.hannesdorfmann.mosby:viewstate:2.0.1'
     compile 'com.orhanobut:logger:1.15'
     compile 'com.android.support:recyclerview-v7:23.4.0'
-    compile 'org.byteam.superadapter:superadapter:3.+'
+    compile 'org.byteam.superadapter:superadapter:3.6.1'
     compile 'io.reactivex:rxjava:1.2.0'
     compile 'io.reactivex:rxandroid:1.2.1'
+    compile 'com.github.Blankeer:ProgressButton:0.1.3'
 }

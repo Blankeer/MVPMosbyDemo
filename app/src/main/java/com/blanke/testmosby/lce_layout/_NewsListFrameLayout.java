@@ -1,18 +1,17 @@
 package com.blanke.testmosby.lce_layout;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
-import com.blanke.testmosby.MvpLceViewStateFrameLayout;
+import com.blanke.testmosby.mosby_class.MvpLceViewStateFrameLayout;
 import com.blanke.testmosby.R;
 import com.blanke.testmosby.bean.News;
 import com.blanke.testmosby.lceviewstate.persenter.NewsListPersenter;
 import com.blanke.testmosby.lceviewstate.view.NewsListView;
-import com.hannesdorfmann.mosby.mvp.viewstate.ViewState;
+import com.hannesdorfmann.mosby.mvp.viewstate.lce.LceViewState;
 import com.hannesdorfmann.mosby.mvp.viewstate.lce.data.CastedArrayListLceViewState;
 import com.orhanobut.logger.Logger;
 
@@ -68,26 +67,24 @@ public class _NewsListFrameLayout extends MvpLceViewStateFrameLayout<SwipeRefres
         };
         mRecyclerView.setAdapter(mAdapter);
     }
-
     @Override
     protected String getErrorMessage(Throwable e, boolean pullToRefresh) {
         return e == null ? "error" : e.getMessage();
     }
 
-    @NonNull
     @Override
-    public ViewState<NewsListView> createViewState() {
-        return new CastedArrayListLceViewState<List<News>, NewsListView>();
-    }
-
-    @Override
-    public CastedArrayListLceViewState getViewState() {
-        return (CastedArrayListLceViewState) super.getViewState();
+    public LceViewState<List<News>, NewsListView> createViewState() {
+        return new CastedArrayListLceViewState<>();
     }
 
     @Override
     public void onNewViewStateInstance() {
         loadData(false);
+    }
+
+    @Override
+    public List<News> getData() {
+        return mAdapter.getData();
     }
 
     @Override
@@ -98,7 +95,6 @@ public class _NewsListFrameLayout extends MvpLceViewStateFrameLayout<SwipeRefres
     @Override
     public void setData(List<News> data) {
         Logger.d(data);
-        getViewState().setStateShowContent(data);
         mAdapter.replaceAll(data);
     }
 

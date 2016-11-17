@@ -1,4 +1,4 @@
-package com.blanke.testmosby;
+package com.blanke.testmosby.mosby_class;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -6,47 +6,35 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.blanke.testmosby.R;
 import com.hannesdorfmann.mosby.mvp.MvpPresenter;
+import com.hannesdorfmann.mosby.mvp.layout.MvpFrameLayout;
 import com.hannesdorfmann.mosby.mvp.lce.LceAnimator;
 import com.hannesdorfmann.mosby.mvp.lce.MvpLceView;
-import com.hannesdorfmann.mosby.mvp.viewstate.layout.MvpViewStateFrameLayout;
 
 /**
- * 官方未提供该类，根据#MvpLceFragment写了此类
+ * Created by blanke on 16-11-17.
  */
-public abstract class MvpLceViewStateFrameLayout<CV extends View, M, V extends MvpLceView<M>, P extends MvpPresenter<V>>
-        extends MvpViewStateFrameLayout<V, P> implements MvpLceView<M> {
-
+public abstract class MvpLceFrameLayout<CV extends View, M, V extends MvpLceView<M>, P extends MvpPresenter<V>>
+        extends MvpFrameLayout<V, P> implements MvpLceView<M> {
     protected View loadingView;
     protected CV contentView;
     protected TextView errorView;
 
-    public MvpLceViewStateFrameLayout(Context context) {
+    public MvpLceFrameLayout(Context context) {
         super(context);
     }
 
-    public MvpLceViewStateFrameLayout(Context context, AttributeSet attrs) {
+    public MvpLceFrameLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public MvpLceViewStateFrameLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public MvpLceFrameLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
-    public MvpLceViewStateFrameLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public MvpLceFrameLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-    }
-
-    protected int getLoadViewId() {
-        return R.id.loadingView;
-    }
-
-    protected int getErrorViewId() {
-        return R.id.errorView;
-    }
-
-    protected int getContentViewId() {
-        return R.id.contentView;
     }
 
     @Override
@@ -78,13 +66,30 @@ public abstract class MvpLceViewStateFrameLayout<CV extends View, M, V extends M
         });
     }
 
+    protected int getLoadViewId() {
+        return R.id.loadingView;
+    }
+
+    protected int getErrorViewId() {
+        return R.id.errorView;
+    }
+
+    protected int getContentViewId() {
+        return R.id.contentView;
+    }
+
+
     @Override
     public void showLoading(boolean pullToRefresh) {
         if (!pullToRefresh) {
             animateLoadingViewIn();
         }
+        // otherwise the pull to refresh widget will already display a loading animation
     }
 
+    /**
+     * Override this method if you want to provide your own animation for showing the loading view
+     */
     protected void animateLoadingViewIn() {
         LceAnimator.showLoading(loadingView, contentView, errorView);
     }
@@ -94,23 +99,43 @@ public abstract class MvpLceViewStateFrameLayout<CV extends View, M, V extends M
         animateContentViewIn();
     }
 
+    /**
+     * Called to animate from loading view to content view
+     */
     protected void animateContentViewIn() {
         LceAnimator.showContent(loadingView, contentView, errorView);
     }
 
+    /**
+     * Get the error message for a certain Exception that will be shown on {@link
+     * #showError(Throwable, boolean)}
+     */
     protected abstract String getErrorMessage(Throwable e, boolean pullToRefresh);
 
+    /**
+     * The default behaviour is to display a toast message as light error (i.e. pull-to-refresh
+     * error).
+     * Override this method if you want to display the light error in another way (like crouton).
+     */
     protected void showLightError(String msg) {
-        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+        if (getContext() != null) {
+            Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+        }
     }
 
+    /**
+     * Called if the error view has been clicked. To disable clicking on the errorView use
+     * <code>errorView.setClickable(false)</code>
+     */
     protected void onErrorViewClicked() {
         loadData(false);
     }
 
     @Override
     public void showError(Throwable e, boolean pullToRefresh) {
+
         String errorMsg = getErrorMessage(e, pullToRefresh);
+
         if (pullToRefresh) {
             showLightError(errorMsg);
         } else {
@@ -119,6 +144,9 @@ public abstract class MvpLceViewStateFrameLayout<CV extends View, M, V extends M
         }
     }
 
+    /**
+     * Animates the error view in (instead of displaying content view / loading view)
+     */
     protected void animateErrorViewIn() {
         LceAnimator.showErrorView(loadingView, contentView, errorView);
     }

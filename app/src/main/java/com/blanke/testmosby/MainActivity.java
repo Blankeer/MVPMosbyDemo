@@ -4,8 +4,10 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.FrameLayout;
 
+import com.blanke.lib.ProgressButton;
 import com.blanke.testmosby.lce_layout.NewsListFrameLayout;
 import com.blanke.testmosby.lceviewstate.NewsListFragment;
 import com.orhanobut.logger.Logger;
@@ -15,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout mainFramelayout;
     private NewsListFrameLayout newslistlayout;
 
+    private ProgressButton progressbutton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +41,19 @@ public class MainActivity extends AppCompatActivity {
 //                newslistlayout.onRestoreInstanceState(data);
 //            }
 //        }
+
+        progressbutton = (ProgressButton) findViewById(R.id.progressbutton);
+        progressbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressbutton.setLoading(false);
+                    }
+                }, 3000);
+            }
+        });
     }
 
     @Override
